@@ -40,8 +40,8 @@ public class ActionFactory {
     }
 
     public Action getAction(String request) {
-//        Action action = ACTION_MAP.get("ERROR_ACTION");
         Action action = null;
+
         for (Map.Entry<String, Action> pair : ACTION_MAP.entrySet()) {
             if (request.equalsIgnoreCase(pair.getKey())) {
                 action = ACTION_MAP.get(pair.getKey());
