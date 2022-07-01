@@ -76,7 +76,7 @@ public class OrderDAOImpl implements OrderDAO {
                 order.setStatusId(resultSet.getInt("status_id"));
                 order.setTotalCost(resultSet.getInt("total_cost"));
                 order.setDateStart(resultSet.getTimestamp("date_start"));
-                order.setDateStart(resultSet.getTimestamp("date_finish"));
+                order.setDateFinish(resultSet.getTimestamp("date_finish"));
                 orders.add(order);
             }
         } catch (SQLException e) {

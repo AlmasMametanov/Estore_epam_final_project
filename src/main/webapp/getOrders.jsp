@@ -9,6 +9,8 @@
     <c:forEach var="order" items="${requestScope.orders}">
         <h3><fmt:message key="label.orderNumber"/> ${order.getId()}</h3>
         <h4><fmt:message key="label.orderStatus"/> ${order.getStatus().getName()}</h4>
+        <h4><fmt:message key="label.orderDate"/> ${order.getDateStart()}</h4>
+        <h4><fmt:message key="label.orderDateFinish"/> ${order.getDateFinish()}</h4>
         <c:if test="${sessionScope.isAdmin == true}">
             <form action="/changeOrderStatus" method="post">
                 <select name="statusId" required>

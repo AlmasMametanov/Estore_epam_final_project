@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +46,11 @@ public class CreateOrderDetailAction implements Action {
         }
 
         Date dateStart = new Date();
-        Date dateFinish = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateStart);
+        calendar.add(Calendar.DATE, 7);
+        Date dateFinish = calendar.getTime();
+
         order.setUserId(userId);
         order.setStatusId(statusId);
         order.setTotalCost(totalCost);
@@ -59,7 +64,7 @@ public class CreateOrderDetailAction implements Action {
         Integer newCount;
         for (Basket basket : baskets) {
             productToOrder = productDAO.getProductById(basket.getProductId());
-            if (productToOrder.getCount() - basket.getCount() != 0) {
+            if (productToOrder.getCount() - basket.getCount() >= 0) {
                 newCount = productToOrder.getCount() - basket.getCount();
                 productDAO.updateCountById(newCount, productToOrder.getId());
             } else {

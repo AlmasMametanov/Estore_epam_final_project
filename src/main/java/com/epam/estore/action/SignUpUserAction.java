@@ -40,15 +40,14 @@ public class SignUpUserAction implements Action {
         }
         user.setPhoneNumber(request.getParameter(PHONE_NUMBER));
         user.setAddress(request.getParameter(ADDRESS));
-        user.setPassword(Encoder.encodePassword(request.getParameter(PASSWORD)));
-
         if (!validatePhoneNumber(user.getPhoneNumber())) {
             request.setAttribute(PHONE_FORMAT_INCORRECT, ERROR_PHONE_NUMBER);
             request.getRequestDispatcher(SIGNUP_JSP).forward(request, response);
-        } else if (!validatePassword(user.getPassword())) {
+        } else if (!validatePassword(request.getParameter(PASSWORD))) {
             request.setAttribute(PASSWORD_FORMAT_INCORRECT, ERROR_PASSWORD);
             request.getRequestDispatcher(SIGNUP_JSP).forward(request, response);
         } else {
+            user.setPassword(Encoder.encodePassword(request.getParameter(PASSWORD)));
             userDAO.insertUser(user);
             request.getRequestDispatcher(LOGIN_JSP).forward(request, response);
         }
