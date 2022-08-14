@@ -2,6 +2,7 @@ package com.epam.estore.database.connection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -10,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import static java.lang.Integer.parseInt;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class ConnectionPool {
     private final Logger logger = LogManager.getLogger(this.getClass().getName());
@@ -29,10 +31,12 @@ public class ConnectionPool {
     }
 
     private void setDataForConnection() {
+        Dotenv dotenv = Dotenv.configure().load();
+
         this.driverName = properties.getString("db.driver");
         this.url = properties.getString("db.url");
         this.username = properties.getString("db.username");
-        this.password = properties.getString("db.password");
+        this.password = dotenv.get("db.password");
     }
 
     public static ConnectionPool getInstance() {
