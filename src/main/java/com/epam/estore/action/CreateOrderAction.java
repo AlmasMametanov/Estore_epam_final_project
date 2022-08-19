@@ -16,6 +16,7 @@ import java.util.*;
 
 import static com.epam.estore.util.constants.PageNameConstants.*;
 import static com.epam.estore.util.constants.ParameterNamesConstants.*;
+import static com.epam.estore.util.constants.ErrorConstants.*;
 
 public class CreateOrderAction implements Action {
     private ProductDAO productDAO = new ProductDAOImpl();
@@ -59,10 +60,10 @@ public class CreateOrderAction implements Action {
             return false;
         } else if (product.getCount() > 0){
             basketDAO.updateProductCountInBasket(product.getCount(), basket.getId());
-            request.setAttribute("productMoreThanZero", "Количество товара уменьшилось от необходимого");;
+            request.setAttribute(PRODUCT_MORE_THEN_ZERO, ERROR_PRODUCT_MORE_THEN_ZERO);;
         } else {
             basketDAO.removeBasketByUserId(basket.getProductId(), basket.getUserId());
-            request.setAttribute("productEqualZero", "Товара нет в наличии");
+            request.setAttribute(PRODUCT_EQUAL_ZERO, ERROR_PRODUCT_EQUAL_ZERO);
         }
         return true;
     }

@@ -34,13 +34,13 @@ public class ConfirmOrderAction implements Action {
         Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
         setValuesIntoOrderAndInsertIntoDatabase(userId, localeId, request);
         List<Basket> baskets = basketDAO.getAllBasketsByUserId(userId);
-        viewAllBasketsToConfirmOrder(baskets, userId, response);
+        viewAllBasketsToConfirmOrder(baskets, userId);
 
         basketDAO.removeAllBasketsByUserId(userId);
         request.getRequestDispatcher(INDEX_JSP).forward(request, response);
     }
 
-    private void viewAllBasketsToConfirmOrder(List<Basket> baskets, Long userId, HttpServletResponse response) throws IOException {
+    private void viewAllBasketsToConfirmOrder(List<Basket> baskets, Long userId) throws IOException {
         List<Product> productListToOrder = new ArrayList<>();
         Product productToOrder = null;
         for (Basket basket : baskets) {

@@ -5,8 +5,12 @@
 <fmt:setBundle basename="locale"/>
 
 <html>
-<h3>${requestScope.productMoreThanZero}</h3>
-<h3>${requestScope.productEqualZero}</h3>
+<c:if test="${requestScope.productMoreThanZero != null}">
+    <h3><fmt:message key="error.productMoreThanZero"/></h3>
+</c:if>
+<c:if test="${requestScope.productEqualZero != null}">
+    <h3><fmt:message key="error.productEqualZero"/></h3>
+</c:if>
 
 <form action="changeLocale" method="post">
         <input type="hidden" name="selectedLocale" value="RU" />
