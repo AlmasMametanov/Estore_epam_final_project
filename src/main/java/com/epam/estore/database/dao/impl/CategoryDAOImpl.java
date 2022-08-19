@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.CategoryDAO;
 import com.epam.estore.entity.Category;
@@ -22,29 +23,32 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public void insertCategory(Category category) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CATEGORY)) {
-            preparedStatement.setInt(1, category.getParentId());
+            preparedStatement.setLong(1, category.getParentId());
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
     }
     @Override
-    public Integer getLastCategoryId() {
-        connectionPool = connectionPool.getInstance();
+    public Long getLastCategoryId() {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        Integer categoryId = 0;
+        Long categoryId = 0L;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_LAST_CATEGORY_ID)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                categoryId = resultSet.getInt("id");
+                categoryId = resultSet.getLong("id");
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -52,16 +56,35 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
-    public void removeCategory(Integer categoryId) {
-        connectionPool = connectionPool.getInstance();
+    public void removeCategory(Long categoryId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_CATEGORY)) {
-            preparedStatement.setInt(1, categoryId);
+            preparedStatement.setLong(1, categoryId);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
+        }
+    }
+
+    private void setAutoCommit() {
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void rollBack() {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
         }
     }
 }

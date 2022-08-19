@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.StatusDAO;
 import com.epam.estore.entity.Status;
@@ -23,19 +24,19 @@ public class StatusDAOImpl implements StatusDAO {
     Connection connection;
 
     @Override
-    public Integer getStatusIdByNameAndLocaleId(String statusName, Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public Long getStatusIdByNameAndLocaleId(String statusName, Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        Integer statusId = null;
+        Long statusId = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_STATUS_ID_BY_NAME_AND_LOCALE_ID)) {
             preparedStatement.setString(1, statusName);
-            preparedStatement.setInt(2, localeId);
+            preparedStatement.setLong(2, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                statusId = resultSet.getInt("id");
+                statusId = resultSet.getLong("id");
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -43,20 +44,19 @@ public class StatusDAOImpl implements StatusDAO {
     }
 
     @Override
-    public Status getStatusById(Integer statusId) {
-        connectionPool = connectionPool.getInstance();
+    public Status getStatusById(Long statusId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        Status status = new Status();
+        Status status = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_STATUS_BY_ID)) {
-            preparedStatement.setInt(1, statusId);
+            preparedStatement.setLong(1, statusId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                status.setId(resultSet.getInt("id"));
-                status.setLocaleId(resultSet.getInt("locale_id"));
-                status.setName(resultSet.getString("name"));
+                status = new Status();
+                setParametersToStatus(status, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -64,26 +64,33 @@ public class StatusDAOImpl implements StatusDAO {
     }
 
     @Override
-    public List<Status> getAllStatusByLocaleId(Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public List<Status> getAllStatusByLocaleId(Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        List<Status> statuses = new ArrayList<>();
-        Status status;
+        List<Status> statusList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_STATUS_BY_LOCALE_ID)) {
-            preparedStatement.setInt(1, localeId);
+            preparedStatement.setLong(1, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                status = new Status();
-                status.setId(resultSet.getInt("id"));
-                status.setLocaleId(resultSet.getInt("locale_id"));
-                status.setName(resultSet.getString("name"));
-                statuses.add(status);
+                setParametersToStatusList(statusList, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
-        return statuses;
+        return statusList;
+    }
+
+    private void setParametersToStatus(Status status, ResultSet resultSet) throws SQLException {
+        status.setId(resultSet.getLong("id"));
+        status.setLocaleId(resultSet.getLong("locale_id"));
+        status.setName(resultSet.getString("name"));
+    }
+
+    private void setParametersToStatusList(List<Status> statusList, ResultSet resultSet) throws SQLException {
+        Status status = new Status();
+        setParametersToStatus(status, resultSet);
+        statusList.add(status);
     }
 }

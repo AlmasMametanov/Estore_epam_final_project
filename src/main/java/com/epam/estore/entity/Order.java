@@ -8,7 +8,7 @@ import java.util.Objects;
 public class Order implements Serializable {
     private Long id;
     private Long userId;
-    private Integer statusId;
+    private Long statusId;
     private Integer totalCost;
     private Date dateStart;
     private Date dateFinish;
@@ -48,11 +48,11 @@ public class Order implements Serializable {
         this.userId = userId;
     }
 
-    public Integer getStatusId() {
+    public Long getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(Integer statusId) {
+    public void setStatusId(Long statusId) {
         this.statusId = statusId;
     }
 

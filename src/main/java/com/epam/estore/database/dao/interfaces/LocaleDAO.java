@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface LocaleDAO {
     String getLocaleByShortName(String localeName);
-    Integer getLocaleIdByName(String localeName);
+    Long getLocaleIdByName(String localeName);
     List<Locale> getAllLocale();
 }

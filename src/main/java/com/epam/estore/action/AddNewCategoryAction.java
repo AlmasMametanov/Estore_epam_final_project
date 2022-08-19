@@ -29,30 +29,34 @@ public class AddNewCategoryAction implements Action {
         HttpSession httpSession = request.getSession(true);
         String categoryName = request.getParameter(CATEGORY_NAME);
         if (categoryName != null) {
-            category.setParentId(Integer.valueOf(request.getParameter(CATEGORY_PARENT_ID)));
-            categoryDAO.insertCategory(category);
-            Integer newCategoryLocaleId = categoryDAO.getLastCategoryId();
+            List<String> categoryLocaleNames = Arrays.asList(request.getParameterValues(CATEGORY_NAME));
+            setValuesIntoCategoryAndInsertIntoDatabase(request);
+            Long newCategoryLocaleId = categoryDAO.getLastCategoryId();
             List<Locale> locales = (List<Locale>) httpSession.getAttribute(LOCALES);
-            String newCategoryLocaleName = request.getParameter(CATEGORY_NAME);
-            if (newCategoryLocaleName != null) {
-                List<String> categoryLocaleNames = Arrays.asList(request.getParameterValues(CATEGORY_NAME));
-                CategoryLocale categoryLocale = null;
-                for (int i = 0; i < categoryLocaleNames.size(); i++) {
-                    categoryLocale = new CategoryLocale();
-                    categoryLocale.setCategoryId(newCategoryLocaleId);
-                    categoryLocale.setLocaleId(locales.get(i).getId());
-                    categoryLocale.setName(categoryLocaleNames.get(i));
-                    categoryLocaleDAO.insertCategoryLocale(categoryLocale);
-                }
-                request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
-            } else {
-                request.getRequestDispatcher(ADD_NEW_CATEGORY_JSP).forward(request, response);
-            }
+            setValuesIntoCategoryLocaleAndInsertIntoDatabase(categoryLocaleNames, newCategoryLocaleId, locales);
+            request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
         } else {
-            Integer localeId = (Integer) httpSession.getAttribute(LOCALE_ID);
+            Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
             List<CategoryLocale> categories = categoryLocaleDAO.getRootsOfCategory(localeId);
             request.setAttribute(CATEGORIES, categories);
             request.getRequestDispatcher(ADD_NEW_CATEGORY_JSP).forward(request, response);
+        }
+    }
+
+    private void setValuesIntoCategoryAndInsertIntoDatabase(HttpServletRequest request) {
+        category.setParentId(Long.valueOf(request.getParameter(CATEGORY_PARENT_ID)));
+        categoryDAO.insertCategory(category);
+    }
+
+    private void setValuesIntoCategoryLocaleAndInsertIntoDatabase(List<String> categoryLocaleNames, Long newCategoryLocaleId,
+                                                                  List<Locale> locales) {
+        CategoryLocale categoryLocale;
+        for (int i = 0; i < categoryLocaleNames.size(); i++) {
+            categoryLocale = new CategoryLocale();
+            categoryLocale.setCategoryId(newCategoryLocaleId);
+            categoryLocale.setLocaleId(locales.get(i).getId());
+            categoryLocale.setName(categoryLocaleNames.get(i));
+            categoryLocaleDAO.insertCategoryLocale(categoryLocale);
         }
     }
 }

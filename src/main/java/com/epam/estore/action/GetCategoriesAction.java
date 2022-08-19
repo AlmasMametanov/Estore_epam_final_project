@@ -19,11 +19,13 @@ public class GetCategoriesAction implements Action {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(true);
-        Integer localeId = (Integer) httpSession.getAttribute(LOCALE_ID);
+        Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
         List<CategoryLocale> categoryLocale = categoryLocaleDAO.getRootsOfCategory(localeId);
-        if (categoryLocale != null) {
+        if (!categoryLocale.isEmpty()) {
             request.setAttribute(CATEGORIES, categoryLocale);
             request.getRequestDispatcher(INDEX_JSP).forward(request, response);
+        } else {
+            response.sendRedirect(INDEX_JSP);
         }
     }
 }

@@ -5,7 +5,10 @@
 <fmt:setBundle basename="locale"/>
 
 <html>
-    <form action="changeLocale" method="post">
+<h3>${requestScope.productMoreThanZero}</h3>
+<h3>${requestScope.productEqualZero}</h3>
+
+<form action="changeLocale" method="post">
         <input type="hidden" name="selectedLocale" value="RU" />
         <button>RU</button>
     </form>
@@ -13,7 +16,7 @@
         <input type="hidden" name="selectedLocale" value="EN" />
         <button>EN</button>
     </form>
-<c:if test="${sessionScope.login == null}">
+<c:if test="${sessionScope.email == null}">
     <form action="login.jsp">
         <button><fmt:message key="button.login"/></button>
     </form>
@@ -21,7 +24,7 @@
         <button><fmt:message key="button.signup"/></button>
     </form>
 </c:if>
-<c:if test="${sessionScope.login != null}">
+<c:if test="${sessionScope.email != null}">
     <jsp:include page="logout.jsp"/>
     <form action="userProfile.jsp">
         <button><fmt:message key="button.userProfile"/></button>

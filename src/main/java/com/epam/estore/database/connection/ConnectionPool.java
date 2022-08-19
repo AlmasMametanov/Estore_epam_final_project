@@ -55,10 +55,12 @@ public class ConnectionPool {
     private void loadDrivers() {
         try {
             Driver driver = (Driver) Class.forName(driverName).newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            logger.warn(e);
+        } catch (IllegalAccessException e) {
+            logger.error(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -68,8 +70,10 @@ public class ConnectionPool {
             try {
                 connection = DriverManager.getConnection(url, username, password);
                 connectionQueue.put(connection);
-            } catch (SQLException | InterruptedException e) {
-                logger.warn(e);
+            } catch (SQLException e) {
+                logger.error(e.getMessage(), e);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -79,7 +83,7 @@ public class ConnectionPool {
         try {
             connection = connectionQueue.take();
         } catch (InterruptedException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         }
         return connection;
     }
@@ -89,7 +93,7 @@ public class ConnectionPool {
             try {
                 connectionQueue.put(connection);
             } catch (InterruptedException e) {
-                logger.warn(e);
+                logger.error(e.getMessage(), e);
             }
         }
     }

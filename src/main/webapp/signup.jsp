@@ -7,8 +7,11 @@
 <html>
 <body>
     <form action="signup" method="post">
-        <label for="login"><fmt:message key="label.login"/></label>
-        <input type="text" name="login" id="login" required/><br>
+        <c:if test="${requestScope.emailFormatIncorrect != null}">
+            <fmt:message key="error.email"/><br/>
+        </c:if>
+        <label for="email"><fmt:message key="label.email"/></label>
+        <input type="text" name="email" id="email" required/><br>
 
         <label for="firstName"><fmt:message key="label.firstName"/></label>
         <input type="text" name="firstName" id="firstName" required/><br>

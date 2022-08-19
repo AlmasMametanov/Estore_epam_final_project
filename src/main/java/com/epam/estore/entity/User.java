@@ -8,7 +8,7 @@ public class User implements Serializable {
     private Long id;
     private String firstName;
     private String lastName;
-    private String login;
+    private String email;
     private Date birthday;
     private String phoneNumber;
     private String address;
@@ -43,12 +43,12 @@ public class User implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getLogin() {
-        return login;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Date getBirthday() {
@@ -107,7 +107,7 @@ public class User implements Serializable {
         return Objects.equals(id, user.id) &&
                 Objects.equals(firstName, user.firstName) &&
                 Objects.equals(lastName, user.lastName) &&
-                Objects.equals(login, user.login) &&
+                Objects.equals(email, user.email) &&
                 Objects.equals(birthday, user.birthday) &&
                 Objects.equals(phoneNumber, user.phoneNumber) &&
                 Objects.equals(address, user.address) &&
@@ -118,7 +118,7 @@ public class User implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, login, birthday, phoneNumber, address, password, isAdmin, isBanned);
+        return Objects.hash(id, firstName, lastName, email, birthday, phoneNumber, address, password, isAdmin, isBanned);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class User implements Serializable {
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", login='" + login + '\'' +
+                ", email='" + email + '\'' +
                 ", birthday=" + birthday +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", address='" + address + '\'' +

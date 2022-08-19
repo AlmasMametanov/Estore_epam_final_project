@@ -30,27 +30,30 @@ public class ChangeProductDataAction implements Action {
         HttpSession httpSession = request.getSession(true);
         String productName = request.getParameter(PRODUCT_NAME);
         if (productName != null) {
-            Product product = new Product();
-            product.setName(request.getParameter(PRODUCT_NAME));
-            product.setDescription(request.getParameter(PRODUCT_DESCRIPTION));
-            product.setCost(Integer.parseInt(request.getParameter(PRODUCT_COST)));
-            product.setCount(Integer.parseInt(request.getParameter(PRODUCT_COUNT)));
-            product.setCountryId(Integer.parseInt(request.getParameter(COUNTRY_ID)));
-            product.setCategoryId(Integer.parseInt(request.getParameter(CATEGORY_ID)));
-            product.setId(Long.parseLong(request.getParameter(PRODUCT_ID)));
-            productDAO.updateProduct(product);
+            setValuesIntoProductAndInsertIntoDatabase(request);
             request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
         } else {
-            Integer localeId = (Integer) httpSession.getAttribute(LOCALE_ID);
+            Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
             List<Country> countries = countryDAO.getAllCountryByLocaleId(localeId);
-            request.setAttribute(COUNTRIES, countries);
             List<CategoryLocale> categoryLocale = categoryLocaleDAO.getRootsOfCategory(localeId);
-            request.setAttribute(CATEGORIES, categoryLocale);
             Long productId = Long.parseLong(request.getParameter(PRODUCT_ID));
             Product product = productDAO.getProductById(productId);
+            request.setAttribute(COUNTRIES, countries);
+            request.setAttribute(CATEGORIES, categoryLocale);
             request.setAttribute(PRODUCT, product);
             request.getRequestDispatcher(CHANGE_PRODUCT_JSP).forward(request, response);
         }
+    }
 
+    private void setValuesIntoProductAndInsertIntoDatabase(HttpServletRequest request) {
+        Product product = new Product();
+        product.setName(request.getParameter(PRODUCT_NAME));
+        product.setDescription(request.getParameter(PRODUCT_DESCRIPTION));
+        product.setCost(Integer.parseInt(request.getParameter(PRODUCT_COST)));
+        product.setCount(Integer.parseInt(request.getParameter(PRODUCT_COUNT)));
+        product.setCountryId(Long.parseLong(request.getParameter(COUNTRY_ID)));
+        product.setCategoryId(Long.parseLong(request.getParameter(CATEGORY_ID)));
+        product.setId(Long.parseLong(request.getParameter(PRODUCT_ID)));
+        productDAO.updateProduct(product);
     }
 }

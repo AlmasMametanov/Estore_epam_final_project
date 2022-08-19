@@ -17,7 +17,7 @@ public class ChangeOrderStatusAction implements Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer statusId = Integer.parseInt(request.getParameter(STATUS_ID));
+        Long statusId = Long.parseLong(request.getParameter(STATUS_ID));
         Long orderId = Long.parseLong(request.getParameter(ORDER_ID));
 
         orderDAO.updateOrderStatusByOrderId(statusId, orderId);

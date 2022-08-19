@@ -21,7 +21,7 @@ public class RemoveProductFromBasketAction implements Action {
 
         Long productId = Long.parseLong(request.getParameter(PRODUCT_ID));
         Long userId = (Long) httpSession.getAttribute(USER_ID);
-        basketDAO.removeProductFromBasket(productId, userId);
+        basketDAO.removeBasketByUserId(productId, userId);
         request.getRequestDispatcher(INDEX_JSP).forward(request, response);
     }
 }

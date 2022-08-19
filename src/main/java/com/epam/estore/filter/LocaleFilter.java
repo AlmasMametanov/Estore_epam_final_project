@@ -8,12 +8,12 @@ import java.io.IOException;
 import static com.epam.estore.util.constants.ParameterNamesConstants.*;
 
 public class LocaleFilter implements Filter {
-    private Integer defaultLocaleID;
+    private Long defaultLocaleID;
     private String defaultLocale;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        defaultLocaleID = Integer.parseInt(filterConfig.getInitParameter("defaultLocaleID"));
+        defaultLocaleID = Long.parseLong(filterConfig.getInitParameter("defaultLocaleID"));
         defaultLocale = filterConfig.getInitParameter("defaultLocale");
     }
 
@@ -22,7 +22,7 @@ public class LocaleFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpSession httpSession = httpServletRequest.getSession(true);
 
-        Integer localeId = (Integer) httpSession.getAttribute(LOCALE_ID);
+        Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
         String locale = (String) httpSession.getAttribute(LOCALE);
 
         if (localeId == null || locale == null) {

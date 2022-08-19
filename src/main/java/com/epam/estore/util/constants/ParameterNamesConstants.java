@@ -7,7 +7,7 @@ public class ParameterNamesConstants {
     public static final String LOCALES = "locales";
     public static final String USERS = "users";
     public static final String USER = "user";
-    public static final String LOGIN = "login";
+    public static final String EMAIL = "email";
     public static final String USER_ID = "userId";
     public static final String PASSWORD = "password";
     public static final String FIRST_NAME = "firstName";

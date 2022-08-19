@@ -21,26 +21,33 @@ public class LogInUserAction implements Action {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession httpSession = request.getSession(true);
 
-        String login = request.getParameter(LOGIN);
+        String email = request.getParameter(EMAIL);
         String encodePassword = Encoder.encodePassword(request.getParameter(PASSWORD));
-        User user = userDAO.getUserByLoginPassword(login, encodePassword);
-
+        User user = userDAO.getUserByLoginPassword(email, encodePassword);
         if (user != null && user.getIsBanned() == false) {
-            httpSession.setAttribute(USER, user);
-            httpSession.setAttribute(USER_ID, user.getId());
-            httpSession.setAttribute(FIRST_NAME, user.getFirstName());
-            httpSession.setAttribute(LAST_NAME, user.getLastName());
-            httpSession.setAttribute(LOGIN, login);
-            httpSession.setAttribute(BIRTHDAY, user.getBirthday());
-            httpSession.setAttribute(PHONE_NUMBER, user.getPhoneNumber());
-            httpSession.setAttribute(ADDRESS, user.getAddress());
-            httpSession.setAttribute(IS_ADMIN, user.getIsAdmin());
-            httpSession.setAttribute(IS_BANNED, user.getIsBanned());
-            if (user.getIsAdmin() == true) {
-                request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
-            } else {
-                request.getRequestDispatcher(INDEX_JSP).forward(request, response);
-            }
+            setAttributes(httpSession, user, email);
+            checkIfAdmin(user, request, response);
+        } else {
+            request.getRequestDispatcher(INDEX_JSP).forward(request, response);
+        }
+    }
+
+    private void setAttributes(HttpSession httpSession, User user, String email) {
+        httpSession.setAttribute(USER, user);
+        httpSession.setAttribute(USER_ID, user.getId());
+        httpSession.setAttribute(FIRST_NAME, user.getFirstName());
+        httpSession.setAttribute(LAST_NAME, user.getLastName());
+        httpSession.setAttribute(EMAIL, email);
+        httpSession.setAttribute(BIRTHDAY, user.getBirthday());
+        httpSession.setAttribute(PHONE_NUMBER, user.getPhoneNumber());
+        httpSession.setAttribute(ADDRESS, user.getAddress());
+        httpSession.setAttribute(IS_ADMIN, user.getIsAdmin());
+        httpSession.setAttribute(IS_BANNED, user.getIsBanned());
+    }
+
+    private void checkIfAdmin(User user, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (user.getIsAdmin() == true) {
+            request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
         } else {
             request.getRequestDispatcher(INDEX_JSP).forward(request, response);
         }

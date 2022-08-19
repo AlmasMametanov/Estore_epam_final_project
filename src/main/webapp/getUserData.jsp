@@ -14,7 +14,7 @@
     <table>
         <tr>
             <th><fmt:message key="label.userId"/></th>
-            <th><fmt:message key="label.login"/></th>
+            <th><fmt:message key="label.email"/></th>
             <th><fmt:message key="label.firstName"/></th>
             <th><fmt:message key="label.lastName"/></th>
             <th><fmt:message key="label.birthday"/></th>
@@ -25,7 +25,7 @@
         </tr>
         <tr>
             <td>${user.getId()}</td>
-            <td>${user.getLogin()}</td>
+            <td>${user.getEmail()}</td>
             <td>${user.getFirstName()}</td>
             <td>${user.getLastName()}</td>
             <td>${user.getBirthday()}</td>

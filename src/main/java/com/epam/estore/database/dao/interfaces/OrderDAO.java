@@ -7,5 +7,5 @@ public interface OrderDAO {
     void insertOrder(Order order);
     Long getLastOrderIdByUserId(Long userId);
     List<Order> getAllOrdersByUserId(Long userId);
-    void updateOrderStatusByOrderId(Integer statusId, Long orderId);
+    void updateOrderStatusByOrderId(Long statusId, Long orderId);
 }

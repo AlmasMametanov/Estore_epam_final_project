@@ -16,7 +16,6 @@ public class ActionConstants {
     static final String GET_USER_BY_ID = "/getUser";
     static final String GET_CATEGORIES_ACTION = "/categories";
     static final String GET_PRODUCTS_BY_CATEGORY_ID_ACTION = "/getProductsByCategoryId";
-    static final String GET_ALL_COUNTRIES = "/getAllCountries";
     static final String GET_ALL_PRODUCTS_FROM_BASKET_BY_USER_ID = "/getAllProductsFromBasket";
     static final String GET_ORDERS = "/getOrders";
     static final String LOGIN_ACTION = "/login";
@@ -24,4 +23,5 @@ public class ActionConstants {
     static final String REMOVE_PRODUCT_FROM_BASKET = "/removeProductFromBasket";
     static final String SIGNUP_ACTION = "/signup";
     static final String SEARCH_PRODUCT_ACTION = "/searchProduct";
+    static final String PAGE_NOT_FOUND_ACTION = "/pageNotFound";
 }

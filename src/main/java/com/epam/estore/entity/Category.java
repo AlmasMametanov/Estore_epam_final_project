@@ -4,22 +4,22 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Category implements Serializable {
-    private Integer id;
-    private Integer parentId;
+    private Long id;
+    private Long parentId;
 
-    public Integer getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(Integer parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

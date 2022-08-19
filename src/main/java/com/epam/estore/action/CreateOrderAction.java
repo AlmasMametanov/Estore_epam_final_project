@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
 
-import static com.epam.estore.util.constants.PageNameConstants.CREATE_ORDER_JSP;
+import static com.epam.estore.util.constants.PageNameConstants.*;
 import static com.epam.estore.util.constants.ParameterNamesConstants.*;
 
 public class CreateOrderAction implements Action {
@@ -27,17 +27,43 @@ public class CreateOrderAction implements Action {
 
         Long userId = (Long) httpSession.getAttribute(USER_ID);
         List<Basket> baskets = basketDAO.getAllBasketsByUserId(userId);
-        List<Product> productsFromBasket = new ArrayList<>();
-        Product productFromBasket = null;
+        List<Product> productListFromBaskets = new ArrayList<>();
+        Product product = null;
         Integer totalCost = 0;
+        Boolean notEnoughProduct = null;
         for (Basket basket : baskets) {
-            productFromBasket = productDAO.getProductById(basket.getProductId());
-            productFromBasket.setCount(basket.getCount());
-            totalCost = totalCost + (productFromBasket.getCost() * productFromBasket.getCount());
-            productsFromBasket.add(productFromBasket);
+            product = productDAO.getProductById(basket.getProductId());
+            notEnoughProduct = isProductCountAvailable(product, basket, request, response);
+            if (notEnoughProduct == true)
+                break;
+            totalCost = totalCost + (product.getCost() * product.getCount());
+            productListFromBaskets.add(product);
         }
-        request.setAttribute(TOTAL_COST, totalCost);
-        request.setAttribute(PRODUCTS_FROM_BASKET, productsFromBasket);
-        request.getRequestDispatcher(CREATE_ORDER_JSP).forward(request, response);
+        pageToGoTo(notEnoughProduct, totalCost, productListFromBaskets, request, response);
+    }
+
+    private void pageToGoTo(Boolean notEnoughProduct, Integer totalCost, List<Product> productListFromBaskets,
+                            HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (notEnoughProduct == false) {
+            request.setAttribute(TOTAL_COST, totalCost);
+            request.setAttribute(PRODUCTS_FROM_BASKET, productListFromBaskets);
+            request.getRequestDispatcher(CREATE_ORDER_JSP).forward(request, response);
+        } else {
+            request.getRequestDispatcher(INDEX_JSP).forward(request, response);
+        }
+    }
+
+    private Boolean isProductCountAvailable(Product product, Basket basket, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if (product.getCount() >= basket.getCount()) {
+            product.setCount(basket.getCount());
+            return false;
+        } else if (product.getCount() > 0){
+            basketDAO.updateProductCountInBasket(product.getCount(), basket.getId());
+            request.setAttribute("productMoreThanZero", "Количество товара уменьшилось от необходимого");;
+        } else {
+            basketDAO.removeBasketByUserId(basket.getProductId(), basket.getUserId());
+            request.setAttribute("productEqualZero", "Товара нет в наличии");
+        }
+        return true;
     }
 }

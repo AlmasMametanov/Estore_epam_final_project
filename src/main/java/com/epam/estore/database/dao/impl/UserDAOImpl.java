@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.UserDAO;
 import com.epam.estore.entity.User;
@@ -12,11 +13,11 @@ import java.util.List;
 
 public class UserDAOImpl implements UserDAO {
     private final Logger logger = LogManager.getLogger(this.getClass().getName());
-    private static final String INSERT_USER = "INSERT INTO user (first_name, last_name, login, birthday, phone_number, " +
+    private static final String INSERT_USER = "INSERT INTO user (first_name, last_name, email, birthday, phone_number, " +
             "address, password, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
     private static final String GET_ALL_USERS = "SELECT * FROM user";
     private static final String GET_USER_BY_ID = "SELECT * FROM user WHERE id = ?";
-    private static final String GET_USER_BY_LOGIN_PASSWORD = "SELECT * FROM user WHERE login = ? AND password = ?";
+    private static final String GET_USER_BY_EMAIL_PASSWORD = "SELECT * FROM user WHERE email = ? AND password = ?";
     private static final String UPDATE_USER_BAN_STATUS = "UPDATE user SET is_banned = ? WHERE id = ?";
 
     private ConnectionPool connectionPool;
@@ -24,20 +25,23 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public void insertUser(User user) {
-        connectionPool = ConnectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER)) {
             java.sql.Date sqlBirthday = new java.sql.Date((user.getBirthday()).getTime());
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setString(3, user.getLogin());
+            preparedStatement.setString(3, user.getEmail());
             preparedStatement.setDate(4,  sqlBirthday);
             preparedStatement.setString(5, user.getPhoneNumber());
             preparedStatement.setString(6, user.getAddress());
             preparedStatement.setString(7, user.getPassword());
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -45,7 +49,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<User> getAllUsers() {
-        connectionPool = ConnectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         List<User> users = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_USERS)) {
@@ -54,7 +58,7 @@ public class UserDAOImpl implements UserDAO {
                 setParametersToUserList(users, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -63,17 +67,18 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User getUserById(Long userId) {
-        User user = new User();
-        connectionPool = ConnectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        User user = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_USER_BY_ID)) {
             preparedStatement.setLong(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
+                user = new User();
                 setParametersToUser(user, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -81,12 +86,12 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User getUserByLoginPassword(String login, String password) {
-        User user = null;
-        connectionPool = connectionPool.getInstance();
+    public User getUserByLoginPassword(String email, String password) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(GET_USER_BY_LOGIN_PASSWORD)) {
-            preparedStatement.setString(1, login);
+        User user = null;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(GET_USER_BY_EMAIL_PASSWORD)) {
+            preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -94,7 +99,7 @@ public class UserDAOImpl implements UserDAO {
                 setParametersToUser(user, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -103,14 +108,17 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public void updateUserBanStatus(User user) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_BAN_STATUS)) {
             preparedStatement.setBoolean(1, user.getIsBanned());
             preparedStatement.setLong(2, user.getId());
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -118,7 +126,7 @@ public class UserDAOImpl implements UserDAO {
 
     private void setParametersToUser(User user, ResultSet resultSet) throws SQLException {
         user.setId(resultSet.getLong("id"));
-        user.setLogin(resultSet.getString("login"));
+        user.setEmail(resultSet.getString("email"));
         user.setFirstName(resultSet.getString("first_name"));
         user.setLastName(resultSet.getString("last_name"));
         user.setBirthday(resultSet.getDate("birthday"));
@@ -132,5 +140,23 @@ public class UserDAOImpl implements UserDAO {
         User user = new User();
         setParametersToUser(user, resultSet);
         users.add(user);
+    }
+
+    private void setAutoCommit() {
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void rollBack() {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
     }
 }

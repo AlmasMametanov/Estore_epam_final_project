@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.OrderDAO;
 import com.epam.estore.entity.Order;
@@ -23,19 +24,22 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public void insertOrder(Order order) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ORDER)) {
             java.sql.Date sqlDateStart = new java.sql.Date((order.getDateStart()).getTime());
             java.sql.Date sqlDateFinish = new java.sql.Date((order.getDateFinish()).getTime());
             preparedStatement.setLong(1, order.getUserId());
-            preparedStatement.setInt(2, order.getStatusId());
+            preparedStatement.setLong(2, order.getStatusId());
             preparedStatement.setInt(3, order.getTotalCost());
             preparedStatement.setDate(4, sqlDateStart);
             preparedStatement.setDate(5, sqlDateFinish);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -43,7 +47,7 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public Long getLastOrderIdByUserId(Long userId) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         Long orderId = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_LAST_ORDER_ID_BY_USER_ID)) {
@@ -53,7 +57,7 @@ public class OrderDAOImpl implements OrderDAO {
                 orderId = resultSet.getLong("id");
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -62,25 +66,17 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public List<Order> getAllOrdersByUserId(Long userId) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         List<Order> orders = new ArrayList<>();
-        Order order;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_ORDERS_BY_USER_ID)) {
             preparedStatement.setLong(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                order = new Order();
-                order.setId(resultSet.getLong("id"));
-                order.setUserId(resultSet.getLong("user_id"));
-                order.setStatusId(resultSet.getInt("status_id"));
-                order.setTotalCost(resultSet.getInt("total_cost"));
-                order.setDateStart(resultSet.getTimestamp("date_start"));
-                order.setDateFinish(resultSet.getTimestamp("date_finish"));
-                orders.add(order);
+                setParametersToOrderList(orders, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -89,17 +85,53 @@ public class OrderDAOImpl implements OrderDAO {
 
 
     @Override
-    public void updateOrderStatusByOrderId(Integer statusId, Long orderId) {
-        connectionPool = connectionPool.getInstance();
+    public void updateOrderStatusByOrderId(Long statusId, Long orderId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_ORDER_STATUS_BY_ORDER_ID)) {
-            preparedStatement.setInt(1, statusId);
+            preparedStatement.setLong(1, statusId);
             preparedStatement.setLong(2, orderId);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
+        }
+    }
+
+    private void setParametersToOrder(Order order, ResultSet resultSet) throws SQLException {
+        order.setId(resultSet.getLong("id"));
+        order.setUserId(resultSet.getLong("user_id"));
+        order.setStatusId(resultSet.getLong("status_id"));
+        order.setTotalCost(resultSet.getInt("total_cost"));
+        order.setDateStart(resultSet.getTimestamp("date_start"));
+        order.setDateFinish(resultSet.getTimestamp("date_finish"));
+    }
+
+    private void setParametersToOrderList(List<Order> orders, ResultSet resultSet) throws SQLException {
+        Order order = new Order();
+        setParametersToOrder(order, resultSet);
+        orders.add(order);
+    }
+
+    private void setAutoCommit() {
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void rollBack() {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
         }
     }
 }

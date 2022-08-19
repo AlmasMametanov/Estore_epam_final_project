@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.CategoryLocaleDAO;
 import com.epam.estore.entity.CategoryLocale;
@@ -36,41 +37,36 @@ public class CategoryLocaleDAOImpl implements CategoryLocaleDAO {
 
     @Override
     public void insertCategoryLocale(CategoryLocale categoryLocale) {
-        connectionPool = connectionPool.getInstance();
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
+        setAutoCommit();
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CATEGORY_LOCALE)) {
-            preparedStatement.setInt(1, categoryLocale.getCategoryId());
-            preparedStatement.setInt(2, categoryLocale.getLocaleId());
+            preparedStatement.setLong(1, categoryLocale.getCategoryId());
+            preparedStatement.setLong(2, categoryLocale.getLocaleId());
             preparedStatement.setString(3, categoryLocale.getName());
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            rollBack();
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
     }
 
     @Override
-    public List<CategoryLocale> getRootsOfCategory(Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public List<CategoryLocale> getRootsOfCategory(Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
-        CategoryLocale categoryLocale;
         List<CategoryLocale> categoryRoots = new ArrayList<>();
-        List<CategoryLocale> subcategoriesOfRoots;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ROOTS_OF_CATEGORY)) {
-            preparedStatement.setInt(1, localeId);
+            preparedStatement.setLong(1, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                categoryLocale = new CategoryLocale();
-                categoryLocale.setCategoryId(resultSet.getInt("id"));
-                categoryLocale.setLocaleId(resultSet.getInt("locale_id"));
-                categoryLocale.setName(resultSet.getString("name"));
-                subcategoriesOfRoots = getSubcategoriesOfRootCategory(categoryLocale.getCategoryId(), categoryLocale.getLocaleId());
-                categoryLocale.setSubcategories(subcategoriesOfRoots);
-                categoryRoots.add(categoryLocale);
+                setParametersToCategoryLocaleList(categoryRoots, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -78,27 +74,19 @@ public class CategoryLocaleDAOImpl implements CategoryLocaleDAO {
     }
 
     @Override
-    public List<CategoryLocale> getSubcategoriesOfRootCategory(Integer parentId, Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public List<CategoryLocale> getSubcategoriesOfRootCategory(Long parentId, Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         List<CategoryLocale> categories = new ArrayList<>();
-        List<CategoryLocale> subcategories;
-        CategoryLocale categoryLocale;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_SUBCATEGORIES_OF_ROOT_CATEGORY)) {
-            preparedStatement.setInt(1, parentId);
-            preparedStatement.setInt(2, localeId);
+            preparedStatement.setLong(1, parentId);
+            preparedStatement.setLong(2, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                categoryLocale = new CategoryLocale();
-                categoryLocale.setCategoryId(resultSet.getInt("id"));
-                categoryLocale.setLocaleId(resultSet.getInt("locale_id"));
-                categoryLocale.setName(resultSet.getString("name"));
-                subcategories = getSubcategoriesOfRootCategory(categoryLocale.getCategoryId(), categoryLocale.getLocaleId());
-                categoryLocale.setSubcategories(subcategories);
-                categories.add(categoryLocale);
+                setParametersToCategoryLocaleList(categories, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -106,30 +94,19 @@ public class CategoryLocaleDAOImpl implements CategoryLocaleDAO {
     }
 
     @Override
-    public List<Product> getAllProductsByCategoryIdAndLocaleId(Integer subcategoryId, Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public List<Product> getAllProductsByCategoryIdAndLocaleId(Long subcategoryId, Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         List<Product> productsByCategoryId = new ArrayList<>();
-        Product product;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_PRODUCTS_BY_CATEGORY_ID_AND_LOCALE_ID)) {
-            preparedStatement.setInt(1, subcategoryId);
-            preparedStatement.setInt(2, localeId);
+            preparedStatement.setLong(1, subcategoryId);
+            preparedStatement.setLong(2, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                product = new Product();
-                product.setId(resultSet.getLong("p.id"));
-                product.setName(resultSet.getString("p.name"));
-                product.setDescription(resultSet.getString("p.description"));
-                product.setCost(resultSet.getInt("p.cost"));
-                product.setCount(resultSet.getInt("p.count"));
-                product.setCountryId(resultSet.getInt("p.country_id"));
-                product.setCategoryId(resultSet.getInt("p.product_category_id"));
-                product.setCountryName(resultSet.getString("c.name"));
-                product.setCategoryName(resultSet.getString("pcl.name"));
-                productsByCategoryId.add(product);
+                setParametersToProductList(productsByCategoryId, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
@@ -137,16 +114,67 @@ public class CategoryLocaleDAOImpl implements CategoryLocaleDAO {
     }
 
     @Override
-    public void removeCategoryLocale(Integer categoryLocaleId) {
-        connectionPool = connectionPool.getInstance();
+    public void removeCategoryLocale(Long categoryLocaleId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_CATEGORY_LOCALE)) {
-            preparedStatement.setInt(1, categoryLocaleId);
+            preparedStatement.setLong(1, categoryLocaleId);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
+        }
+    }
+
+    private void setParametersToProduct(Product product, ResultSet resultSet) throws SQLException {
+        product.setId(resultSet.getLong("p.id"));
+        product.setName(resultSet.getString("p.name"));
+        product.setDescription(resultSet.getString("p.description"));
+        product.setCost(resultSet.getInt("p.cost"));
+        product.setCount(resultSet.getInt("p.count"));
+        product.setCountryId(resultSet.getLong("p.country_id"));
+        product.setCategoryId(resultSet.getLong("p.product_category_id"));
+        product.setCountryName(resultSet.getString("c.name"));
+        product.setCategoryName(resultSet.getString("pcl.name"));
+    }
+
+    private void setParametersToProductList(List<Product> productList, ResultSet resultSet) throws SQLException {
+        Product product = new Product();
+        setParametersToProduct(product, resultSet);
+        productList.add(product);
+    }
+
+    private void setParametersToCategoryLocale(CategoryLocale categoryLocale, ResultSet resultSet) throws SQLException {
+        categoryLocale.setCategoryId(resultSet.getLong("id"));
+        categoryLocale.setLocaleId(resultSet.getLong("locale_id"));
+        categoryLocale.setName(resultSet.getString("name"));
+        List<CategoryLocale> subcategoriesOfRoots = getSubcategoriesOfRootCategory(categoryLocale.getCategoryId(), categoryLocale.getLocaleId());
+        categoryLocale.setSubcategories(subcategoriesOfRoots);
+    }
+
+    private void setParametersToCategoryLocaleList(List<CategoryLocale> categoryLocaleList, ResultSet resultSet) throws SQLException {
+        CategoryLocale categoryLocale = new CategoryLocale();
+        setParametersToCategoryLocale(categoryLocale, resultSet);
+        categoryLocaleList.add(categoryLocale);
+    }
+
+    private void setAutoCommit() {
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void rollBack() {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Country implements Serializable {
-    private Integer id;
-    private Integer localeId;
+    private Long id;
+    private Long localeId;
     private String name;
     private Locale locale;
 
@@ -17,19 +17,19 @@ public class Country implements Serializable {
         this.locale = locale;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getLocaleId() {
+    public Long getLocaleId() {
         return localeId;
     }
 
-    public void setLocaleId(Integer localeId) {
+    public void setLocaleId(Long localeId) {
         this.localeId = localeId;
     }
 

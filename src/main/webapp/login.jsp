@@ -6,11 +6,11 @@
 
 <html>
 <body>
-    <c:if test="${sessionScope.login == null}">
+    <c:if test="${sessionScope.email == null}">
         <form action="login" method="post">
             <div class="field">
-                <label for="login"><fmt:message key="label.login"/></label>
-                <input type="text" placeholder="<fmt:message key="label.enterLogin"/>" name="login" id="login" required/>
+                <label for="email"><fmt:message key="label.email"/></label>
+                <input type="text" placeholder="<fmt:message key="label.enterEmail"/>" name="email" id="email" required/>
             </div>
             <div class="field">
                 <label for="psw"><fmt:message key="label.password"/></label>

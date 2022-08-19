@@ -1,5 +1,6 @@
 package com.epam.estore.database.dao.impl;
 
+import static com.epam.estore.database.connection.ConnectionPool.getInstance;
 import com.epam.estore.database.connection.ConnectionPool;
 import com.epam.estore.database.dao.interfaces.CountryDAO;
 import com.epam.estore.entity.Country;
@@ -21,26 +22,33 @@ public class CountryDAOImpl implements CountryDAO {
     Connection connection;
 
     @Override
-    public List<Country> getAllCountryByLocaleId(Integer localeId) {
-        connectionPool = connectionPool.getInstance();
+    public List<Country> getAllCountryByLocaleId(Long localeId) {
+        connectionPool = getInstance();
         connection = connectionPool.getConnection();
         List<Country> countries = new ArrayList<>();
-        Country country;
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL_COUNTRY_BY_LOCALE_ID)) {
-            preparedStatement.setInt(1, localeId);
+            preparedStatement.setLong(1, localeId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                country = new Country();
-                country.setId(resultSet.getInt("id"));
-                country.setLocaleId(resultSet.getInt("locale_id"));
-                country.setName(resultSet.getString("name"));
-                countries.add(country);
+                setParametersToCountryList(countries, resultSet);
             }
         } catch (SQLException e) {
-            logger.warn(e);
+            logger.error(e.getMessage(), e);
         } finally {
             connectionPool.returnConnection(connection);
         }
         return countries;
+    }
+
+    private void setParameterToCountry(Country country, ResultSet resultSet) throws SQLException {
+        country.setId(resultSet.getLong("id"));
+        country.setLocaleId(resultSet.getLong("locale_id"));
+        country.setName(resultSet.getString("name"));
+    }
+
+    private void setParametersToCountryList(List<Country> countries, ResultSet resultSet) throws SQLException {
+        Country country = new Country();
+        setParameterToCountry(country, resultSet);
+        countries.add(country);
     }
 }

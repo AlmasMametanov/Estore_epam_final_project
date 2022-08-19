@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.epam.estore.util.constants.PageNameConstants.GET_USER_DATA_JSP;
+import static com.epam.estore.util.constants.PageNameConstants.INDEX_JSP;
 import static com.epam.estore.util.constants.ParameterNamesConstants.*;
 
 public class GetUserByIdAction implements Action {
@@ -21,6 +22,8 @@ public class GetUserByIdAction implements Action {
         if (user != null) {
             request.setAttribute(USER, user);
             request.getRequestDispatcher(GET_USER_DATA_JSP).forward(request, response);
+        } else {
+            response.sendRedirect(INDEX_JSP);
         }
     }
 }

@@ -22,7 +22,6 @@ public class ActionFactory {
         ACTION_MAP.put(GET_PRODUCTS_BY_CATEGORY_ID_ACTION, new GetAllProductsByCategoryIdAction());
         ACTION_MAP.put(ADD_NEW_CATEGORY, new AddNewCategoryAction());
         ACTION_MAP.put(ADD_NEW_PRODUCT, new AddNewProductAction());
-        ACTION_MAP.put(GET_ALL_COUNTRIES, new GetAllCountriesAction());
         ACTION_MAP.put(DELETE_PRODUCT, new DeleteProductAction());
         ACTION_MAP.put(DELETE_CATEGORY, new DeleteCategoryAction());
         ACTION_MAP.put(CHANGE_PRODUCT, new ChangeProductDataAction());
@@ -30,9 +29,10 @@ public class ActionFactory {
         ACTION_MAP.put(REMOVE_PRODUCT_FROM_BASKET, new RemoveProductFromBasketAction());
         ACTION_MAP.put(GET_ALL_PRODUCTS_FROM_BASKET_BY_USER_ID, new GetAllProductsOfBasketByUserIdAction());
         ACTION_MAP.put(CREATE_ORDER_ACTION, new CreateOrderAction());
-        ACTION_MAP.put(CONFIRM_ORDER, new CreateOrderDetailAction());
+        ACTION_MAP.put(CONFIRM_ORDER, new ConfirmOrderAction());
         ACTION_MAP.put(GET_ORDERS, new GetOrdersAction());
         ACTION_MAP.put(CHANGE_ORDER_STATUS_ACTION, new ChangeOrderStatusAction());
+        ACTION_MAP.put(PAGE_NOT_FOUND_ACTION, new PageNotFoundAction());
     }
 
     public static ActionFactory getInstance() {
@@ -46,6 +46,9 @@ public class ActionFactory {
             if (request.equalsIgnoreCase(pair.getKey())) {
                 action = ACTION_MAP.get(pair.getKey());
             }
+        }
+        if (action == null) {
+            action = ACTION_MAP.get(PAGE_NOT_FOUND_ACTION);
         }
         return action;
     }

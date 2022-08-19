@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.epam.estore.util.constants.PageNameConstants.INDEX_JSP;
+import static com.epam.estore.util.constants.PageNameConstants.ADMIN_PANEL_JSP;
 import static com.epam.estore.util.constants.ParameterNamesConstants.CATEGORY_ID;
 
 public class DeleteCategoryAction implements Action {
@@ -19,9 +19,9 @@ public class DeleteCategoryAction implements Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer categoryId = Integer.valueOf(request.getParameter(CATEGORY_ID));
+        Long categoryId = Long.valueOf(request.getParameter(CATEGORY_ID));
         categoryLocaleDAO.removeCategoryLocale(categoryId);
         categoryDAO.removeCategory(categoryId);
-        request.getRequestDispatcher(INDEX_JSP).forward(request, response);
+        response.sendRedirect(ADMIN_PANEL_JSP);
     }
 }

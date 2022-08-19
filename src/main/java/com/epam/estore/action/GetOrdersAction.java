@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-import static com.epam.estore.util.constants.PageNameConstants.GET_ORDERS_JSP;
+import static com.epam.estore.util.constants.PageNameConstants.*;
 import static com.epam.estore.util.constants.ParameterNamesConstants.*;
 
 public class GetOrdersAction implements Action {
@@ -32,7 +32,7 @@ public class GetOrdersAction implements Action {
         HttpSession httpSession = request.getSession(true);
 
         Boolean isAdmin = (Boolean) httpSession.getAttribute(IS_ADMIN);
-        Integer localeId = (Integer) httpSession.getAttribute(LOCALE_ID);
+        Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
         Long userId;
         if (isAdmin == true) {
             userId = Long.parseLong(request.getParameter(USER_ID));
@@ -42,16 +42,28 @@ public class GetOrdersAction implements Action {
             userId = (Long) httpSession.getAttribute(USER_ID);
         }
         List<Order> orders = orderDAO.getAllOrdersByUserId(userId);
-        List<OrderDetail> orderDetails = null;
+        if (orders.isEmpty()) {
+            response.sendRedirect(INDEX_JSP);
+        } else {
+            setValuesIntoOrder(orders);
+            request.setAttribute(ORDERS, orders);
+            request.getRequestDispatcher(GET_ORDERS_JSP).forward(request, response);
+        }
+    }
+
+    private void setProductIntoOrderDetail(List<OrderDetail> orderDetails) {
+        for (OrderDetail orderDetail : orderDetails) {
+            orderDetail.setProduct(productDAO.getProductById(orderDetail.getProductId()));
+        }
+    }
+
+    private void setValuesIntoOrder(List<Order> orders) {
+        List<OrderDetail> orderDetails;
         for (Order order : orders) {
             orderDetails = orderDetailDAO.getAllOrderDetailByOrderId(order.getId());
-            for (OrderDetail orderDetail : orderDetails) {
-                orderDetail.setProduct(productDAO.getProductById(orderDetail.getProductId()));
-            }
+            setProductIntoOrderDetail(orderDetails);
             order.setOrderDetails(orderDetails);
-            order.setStatus(statusDAO.getStatusById(order.getStatusId()));
-        }
-        request.setAttribute(ORDERS, orders);
-        request.getRequestDispatcher(GET_ORDERS_JSP).forward(request, response);
+            order.setStatus(statusDAO.getStatusById(order.getStatusId()));        }
     }
+
 }

@@ -17,6 +17,6 @@ public class DeleteProductAction implements Action {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long productId = Long.valueOf(request.getParameter(PRODUCT_ID));
         productDAO.removeProduct(productId);
-        request.getRequestDispatcher(ADMIN_PANEL_JSP).forward(request, response);
+        response.sendRedirect(ADMIN_PANEL_JSP);
     }
 }

@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface CategoryLocaleDAO {
     void insertCategoryLocale(CategoryLocale categoryLocale);
-    List<CategoryLocale> getRootsOfCategory(Integer localeId);
-    List<CategoryLocale> getSubcategoriesOfRootCategory(Integer parentId, Integer localeId);
-    List<Product> getAllProductsByCategoryIdAndLocaleId(Integer subcategoryId, Integer localeId);
-    void removeCategoryLocale(Integer categoryLocaleId);
+    List<CategoryLocale> getRootsOfCategory(Long localeId);
+    List<CategoryLocale> getSubcategoriesOfRootCategory(Long parentId, Long localeId);
+    List<Product> getAllProductsByCategoryIdAndLocaleId(Long subcategoryId, Long localeId);
+    void removeCategoryLocale(Long categoryLocaleId);
 }

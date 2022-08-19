@@ -9,8 +9,8 @@ public class Product implements Serializable {
     private String description;
     private Integer cost;
     private Integer count;
-    private Integer countryId;
-    private Integer categoryId;
+    private Long countryId;
+    private Long categoryId;
     private Country country;
     private CategoryLocale categoryLocale;
     private String countryName;
@@ -88,19 +88,19 @@ public class Product implements Serializable {
         this.count = count;
     }
 
-    public Integer getCountryId() {
+    public Long getCountryId() {
         return countryId;
     }
 
-    public void setCountryId(Integer countryId) {
+    public void setCountryId(Long countryId) {
         this.countryId = countryId;
     }
 
-    public Integer getCategoryId() {
+    public Long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Integer categoryId) {
+    public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
 

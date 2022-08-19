@@ -22,7 +22,7 @@ public class ChangeLocaleAction implements Action {
         HttpSession httpSession = request.getSession(true);
 
         String selectedLanguage = request.getParameter(SELECTED_LOCALE);
-        Integer localeId = localeDAO.getLocaleIdByName(selectedLanguage);
+        Long localeId = localeDAO.getLocaleIdByName(selectedLanguage);
         List<Locale> locales = localeDAO.getAllLocale();
         httpSession.setAttribute(LOCALE, selectedLanguage);
         httpSession.setAttribute(LOCALE_ID, localeId);

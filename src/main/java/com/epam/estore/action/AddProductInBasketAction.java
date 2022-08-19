@@ -25,21 +25,29 @@ public class AddProductInBasketAction implements Action {
         Long productId = Long.parseLong(request.getParameter(PRODUCT_ID));
         Long userId = (Long) httpSession.getAttribute(USER_ID);
         List<Basket> baskets = basketDAO.getAllBasketsByUserId(userId);
-        Boolean inBasket = false;
+        Boolean inBasket = isProductInBasket(baskets, productId);
+
+        if (inBasket == false) {
+            setValuesIntoBasketAndInsertIntoDatabase(basket, userId, request, response);
+            response.sendRedirect(INDEX_JSP);
+        } else {
+            response.sendRedirect(INDEX_JSP);
+        }
+    }
+
+    private Boolean isProductInBasket(List<Basket> baskets, Long productId) {
         for (Basket basket : baskets) {
             if (productId.equals(basket.getProductId())) {
-                inBasket = true;
-                break;
+                return true;
             }
         }
-        if (inBasket == false) {
-            basket.setUserId(userId);
-            basket.setProductId(Long.parseLong(request.getParameter(PRODUCT_ID)));
-            basket.setCount(Integer.parseInt(request.getParameter(PRODUCT_COUNT)));
-            basketDAO.insertBasket(basket);
-            request.getRequestDispatcher(INDEX_JSP).forward(request, response);
-        } else {
-            request.getRequestDispatcher(INDEX_JSP).forward(request, response);
-        }
+        return false;
+    }
+
+    private void setValuesIntoBasketAndInsertIntoDatabase(Basket basket, Long userId, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        basket.setUserId(userId);
+        basket.setProductId(Long.parseLong(request.getParameter(PRODUCT_ID)));
+        basket.setCount(Integer.parseInt(request.getParameter(PRODUCT_COUNT)));
+        basketDAO.insertBasket(basket);
     }
 }

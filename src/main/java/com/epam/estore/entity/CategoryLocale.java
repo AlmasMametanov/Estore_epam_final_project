@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class CategoryLocale implements Serializable {
-    private Integer categoryId;
-    private Integer localeId;
+    private Long categoryId;
+    private Long localeId;
     private String name;
     private Locale locale;
     private CategoryLocale categoryLocale;
@@ -45,19 +45,19 @@ public class CategoryLocale implements Serializable {
         this.locale = locale;
     }
 
-    public Integer getCategoryId() {
+    public Long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Integer categoryId) {
+    public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
 
-    public Integer getLocaleId() {
+    public Long getLocaleId() {
         return localeId;
     }
 
-    public void setLocaleId(Integer localeId) {
+    public void setLocaleId(Long localeId) {
         this.localeId = localeId;
     }
 

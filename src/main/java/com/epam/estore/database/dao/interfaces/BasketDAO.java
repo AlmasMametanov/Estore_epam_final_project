@@ -7,6 +7,7 @@ import java.util.List;
 public interface BasketDAO {
     void insertBasket(Basket basket);
     List<Basket> getAllBasketsByUserId(Long userId);
-    void removeProductFromBasket(Long productId, Long userId);
-    void removeBasket(Long userId);
+    void updateProductCountInBasket(Integer productCount, Long basketId);
+    void removeBasketByUserId(Long productId, Long userId);
+    void removeAllBasketsByUserId(Long userId);
 }

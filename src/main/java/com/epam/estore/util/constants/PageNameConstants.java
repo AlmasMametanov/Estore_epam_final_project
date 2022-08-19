@@ -13,5 +13,6 @@ public class PageNameConstants {
     public static final String INDEX_JSP = "/index.jsp";
     public static final String LOGIN_JSP = "/login.jsp";
     public static final String PRODUCT_JSP = "/products.jsp";
+    public static final String PAGE_NOT_FOUND_JSP = "/pageNotFound.jsp";
     public static final String SIGNUP_JSP = "/signup.jsp";
 }

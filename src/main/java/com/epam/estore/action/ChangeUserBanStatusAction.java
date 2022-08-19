@@ -24,11 +24,6 @@ public class ChangeUserBanStatusAction implements Action {
     }
 
     private Boolean getReversedUserBanStatus(Boolean banStatus) {
-        if (banStatus == true) {
-            banStatus = false;
-        } else {
-            banStatus = true;
-        }
-        return banStatus;
+        return !banStatus;
     }
 }

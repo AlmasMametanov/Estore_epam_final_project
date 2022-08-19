@@ -6,9 +6,9 @@
 
 <html>
 <body>
-    <c:if test="${sessionScope.login != null}">
+    <c:if test="${sessionScope.email != null}">
         <h3><fmt:message key="label.userProfile"/></h3>
-        <p><fmt:message key="label.login"/>: ${login}</p>
+        <p><fmt:message key="label.email"/>: ${email}</p>
         <p><fmt:message key="label.firstName"/>: ${firstName}</p>
         <p><fmt:message key="label.lastName"/>: ${lastName}</p>
         <p><fmt:message key="label.birthday"/>: ${birthday}</p>
