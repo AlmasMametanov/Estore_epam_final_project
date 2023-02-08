@@ -34,7 +34,7 @@ public class GetOrdersAction implements Action {
         Boolean isAdmin = (Boolean) httpSession.getAttribute(IS_ADMIN);
         Long localeId = (Long) httpSession.getAttribute(LOCALE_ID);
         Long userId;
-        if (isAdmin == true) {
+        if (isAdmin) {
             userId = Long.parseLong(request.getParameter(USER_ID));
             List<Status> statusList = statusDAO.getAllStatusByLocaleId(localeId);
             request.setAttribute(STATUS_LIST, statusList);

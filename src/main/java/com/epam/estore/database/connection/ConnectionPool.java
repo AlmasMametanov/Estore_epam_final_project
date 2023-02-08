@@ -55,11 +55,7 @@ public class ConnectionPool {
     private void loadDrivers() {
         try {
             Driver driver = (Driver) Class.forName(driverName).newInstance();
-        } catch (IllegalAccessException e) {
-            logger.error(e.getMessage(), e);
-        } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        } catch (InstantiationException e) {
+        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             logger.error(e.getMessage(), e);
         }
     }
