@@ -9,8 +9,8 @@
     <c:if test="${subcategory.getSubcategories().size() == 0}">
         <option value="${subcategory.getCategoryId()}">${subcategory.getName()}</option>
 
-        <c:set var="category" value="${subcategory}" scope="request"/>
-        <jsp:include page="getSubcategoriesForAddProduct.jsp"/>
+<%--        <c:set var="category" value="${subcategory}" scope="request"/>--%>
+<%--        <jsp:include page="getSubcategoriesForAddProduct.jsp"/>--%>
     </c:if>
     <c:if test="${subcategory.getSubcategories().size() != 0}">
         <c:set var="category" value="${subcategory}" scope="request"/>
